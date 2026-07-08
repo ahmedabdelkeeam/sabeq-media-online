@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SABEQ MEDIA — نظام الإدارة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#152229;
+  --paper:#F2F5F4;
+  --card:#FFFFFF;
+  --line:#DDE4E2;
+  --gold:#BE8A2E;
+  --gold-soft:#F5E9D2;
+  --teal:#1E6F5C;
+  --teal-soft:#DCEFE9;
+  --red:#B23B3B;
+  --red-soft:#F8E2E2;
+  --navy:#1F3B4D;
+  --muted:#647279;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Tajawal',sans-serif;
+  min-height:100vh;
+}
+h1,h2,h3,.disp{ font-family:'Cairo',sans-serif; }
+.app{ display:flex; min-height:100vh; }
+
+/* ---- Sidebar ---- */
+.sidebar{
+  width:230px; flex-shrink:0;
+  background:var(--navy);
+  color:#EAF0EE;
+  padding:24px 18px;
+  display:flex; flex-direction:column; gap:6px;
+}
+.brand{
+  font-family:'Cairo',sans-serif; font-weight:800; font-size:19px;
+  letter-spacing:0.5px; margin-bottom:2px; color:#fff;
+}
+.brand span{ color:var(--gold); }
+.tagline{ font-size:11px; color:#9FB3AC; margin-bottom:28px; letter-spacing:1px; }
+.nav-item{
+  display:flex; align-items:center; gap:10px;
+  padding:11px 12px; border-radius:8px; cursor:pointer;
+  font-size:14.5px; font-weight:500; color:#CFE0DA;
+  transition:background .15s, color .15s;
+  border:1px solid transparent;
+}
+.nav-item:hover{ background:rgba(255,255,255,0.06); }
+.nav-item.active{ background:var(--gold); color:#1F2A1B; font-weight:700; }
+.nav-num{
+  width:20px; height:20px; border-radius:5px; background:rgba(255,255,255,0.12);
+  display:flex; align-items:center; justify-content:center; font-size:11px; font-family:'Cairo';
+  flex-shrink:0;
+}
+.nav-item.active .nav-num{ background:rgba(0,0,0,0.18); }
+.sidebar-footer{ margin-top:auto; font-size:10.5px; color:#7C918A; line-height:1.6; padding-top:20px; border-top:1px solid rgba(255,255,255,0.08); }
+
+/* ---- Main ---- */
+.main{ flex:1; padding:30px 34px; max-width:1180px; }
+.view{ display:none; animation:fade .25s ease; }
+.view.active{ display:block; }
+@keyframes fade{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;} }
+
+.page-head{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:22px; }
+.page-title{ font-size:23px; font-weight:800; margin:0 0 4px; }
+.page-sub{ font-size:13px; color:var(--muted); margin:0; }
+
+/* ---- KPI Cards ---- */
+.kpi-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+.kpi{
+  background:var(--card); border:1px solid var(--line); border-radius:12px;
+  padding:16px 18px; position:relative; overflow:hidden;
+}
+.kpi::before{ content:''; position:absolute; inset-inline-start:0; top:0; bottom:0; width:4px; background:var(--accent,var(--gold)); }
+.kpi-label{ font-size:12px; color:var(--muted); margin-bottom:8px; }
+.kpi-value{ font-family:'Cairo'; font-size:24px; font-weight:800; font-variant-numeric:tabular-nums; }
+.kpi.pos{ --accent:var(--teal); }
+.kpi.pos .kpi-value{ color:var(--teal); }
+.kpi.neg{ --accent:var(--red); }
+.kpi.neg .kpi-value{ color:var(--red); }
+.kpi.warn{ --accent:var(--gold); }
+
+/* Profit ring row */
+.profit-row{ display:flex; gap:14px; margin-bottom:24px; }
+.profit-card{
+  flex:1; background:var(--navy); border-radius:14px; padding:22px 26px;
+  display:flex; align-items:center; gap:22px; color:#fff;
+}
+.ring{ position:relative; width:92px; height:92px; flex-shrink:0; }
+.ring svg{ transform:rotate(-90deg); width:92px; height:92px; }
+.ring-bg{ fill:none; stroke:rgba(255,255,255,0.15); stroke-width:9; }
+.ring-fg{ fill:none; stroke:var(--gold); stroke-width:9; stroke-linecap:round; transition:stroke-dashoffset .4s; }
+.ring-label{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Cairo'; font-weight:800; font-size:16px; }
+.profit-text .t1{ font-size:12px; color:#B9C9C2; margin-bottom:4px; }
+.profit-text .t2{ font-family:'Cairo'; font-size:26px; font-weight:800; }
+.profit-text .t3{ font-size:12px; color:#9FB3AC; margin-top:4px; }
+
+/* pkg breakdown */
+.card{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; }
+.card h3{ font-size:15px; margin:0 0 14px; }
+table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+th{ text-align:right; font-size:11.5px; color:var(--muted); font-weight:700; padding:8px 10px; border-bottom:2px solid var(--line); }
+td{ padding:9px 10px; border-bottom:1px solid var(--line); }
+tr:last-child td{ border-bottom:none; }
+.tag{ display:inline-block; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:700; }
+.tag.green{ background:var(--teal-soft); color:var(--teal); }
+.tag.red{ background:var(--red-soft); color:var(--red); }
+.tag.grey{ background:#EDEFEF; color:var(--muted); }
+.tag.gold{ background:var(--gold-soft); color:#8A6413; }
+.num{ font-variant-numeric:tabular-nums; font-family:'Cairo'; }
+
+/* Forms */
+.form-card{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; margin-bottom:20px; }
+.form-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:12px; margin-bottom:14px; }
+.field label{ display:block; font-size:12px; color:var(--muted); margin-bottom:5px; font-weight:600; }
+.field input, .field select, .field textarea{
+  width:100%; padding:9px 11px; border:1px solid var(--line); border-radius:8px;
+  font-family:'Tajawal'; font-size:13.5px; background:#FBFCFC; color:var(--ink);
+}
+.field input:focus, .field select:focus, .field textarea:focus{ outline:none; border-color:var(--gold); background:#fff; }
+.btn{
+  padding:10px 20px; border-radius:8px; border:none; cursor:pointer;
+  font-family:'Tajawal'; font-weight:700; font-size:13.5px;
+  background:var(--navy); color:#fff; transition:opacity .15s;
+}
+.btn:hover{ opacity:0.88; }
+.btn.gold{ background:var(--gold); color:#241C08; }
+.btn.ghost{ background:transparent; border:1px solid var(--line); color:var(--ink); }
+.btn.small{ padding:6px 12px; font-size:12px; }
+.btn.danger-ghost{ background:transparent; border:1px solid var(--red-soft); color:var(--red); }
+
+.section-title{ font-size:16px; font-weight:800; margin:26px 0 12px; display:flex; align-items:center; gap:8px; }
+.section-title::before{ content:''; width:4px; height:16px; background:var(--gold); border-radius:2px; }
+
+.empty{ text-align:center; padding:30px; color:var(--muted); font-size:13px; }
+.pill-btns{ display:flex; gap:6px; }
+
+.badge-count{ background:var(--gold-soft); color:#8A6413; font-family:'Cairo'; font-weight:700; font-size:11px; padding:1px 8px; border-radius:20px; margin-inline-start:6px;}
+
+@media(max-width:900px){
+  .app{ flex-direction:column; }
+  .sidebar{ width:100%; flex-direction:row; overflow-x:auto; padding:14px; }
+  .sidebar-footer{ display:none; }
+  .brand{ display:none; }
+  .kpi-grid{ grid-template-columns:repeat(2,1fr); }
+  .profit-row{ flex-direction:column; }
+  .main{ padding:18px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="brand">SABEQ <span>MEDIA</span></div>
+    <div class="tagline">نظام الإدارة المالية</div>
+    <div class="nav-item active" data-view="dashboard"><span class="nav-num">①</span> لوحة التحكم</div>
+    <div class="nav-item" data-view="expenses"><span class="nav-num">②</span> المصروفات</div>
+    <div class="nav-item" data-view="packages"><span class="nav-num">③</span> الباقات</div>
+    <div class="nav-item" data-view="clients"><span class="nav-num">④</span> العملاء</div>
+    <div class="sidebar-footer">البيانات محفوظة تلقائيًا في حسابك، وتتحدّث فورًا في كل مرة تفتح فيها النظام.</div>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">لوحة التحكم</h1>
+          <p class="page-sub">نظرة شاملة على دخل الشركة ومصروفاتها — بتحدّث نفسها أوتوماتيك</p>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi warn"><div class="kpi-label">إجمالي المصروفات الشهرية</div><div class="kpi-value" id="kpi-expenses">—</div></div>
+        <div class="kpi"><div class="kpi-label">إجمالي الدخل (كل العقود)</div><div class="kpi-value" id="kpi-income">—</div></div>
+        <div class="kpi pos"><div class="kpi-label">المُحصّل فعليًا</div><div class="kpi-value" id="kpi-collected">—</div></div>
+        <div class="kpi"><div class="kpi-label">المتبقي لدى العملاء</div><div class="kpi-value" id="kpi-remaining">—</div></div>
+      </div>
+
+      <div class="profit-row">
+        <div class="profit-card">
+          <div class="ring">
+            <svg viewBox="0 0 92 92">
+              <circle class="ring-bg" cx="46" cy="46" r="38"></circle>
+              <circle class="ring-fg" id="profit-ring" cx="46" cy="46" r="38" stroke-dasharray="238.7" stroke-dashoffset="238.7"></circle>
+            </svg>
+            <div class="ring-label" id="profit-pct">—</div>
+          </div>
+          <div class="profit-text">
+            <div class="t1">صافي الربح (من المُحصّل)</div>
+            <div class="t2" id="profit-value">—</div>
+            <div class="t3" id="profit-note">إجمالي المُحصّل − إجمالي المصروفات</div>
+          </div>
+        </div>
+        <div class="card" style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+          <div class="kpi-label" style="margin-bottom:6px;">عدد العملاء المسجّلين</div>
+          <div class="kpi-value" id="kpi-clientcount" style="color:var(--navy);">—</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>توزيع العملاء على الباقات</h3>
+        <table>
+          <thead><tr><th>الباقة</th><th>عدد العملاء</th><th>إجمالي الدخل</th><th>النسبة</th></tr></thead>
+          <tbody id="pkg-breakdown"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- EXPENSES -->
+    <div class="view" id="view-expenses">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">المصروفات الشهرية</h1>
+          <p class="page-sub">كل بند مصروف ثابت أو متغيّر — عدّل أو أضف براحتك</p>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="field"><label>اسم البند</label><input id="exp-name" placeholder="مثال: مرتبات"></div>
+          <div class="field"><label>القيمة الشهرية (ج.م)</label><input id="exp-value" type="number" placeholder="0"></div>
+          <div class="field"><label>ملاحظة (اختياري)</label><input id="exp-note" placeholder=""></div>
+        </div>
+        <button class="btn gold" onclick="addExpense()">+ إضافة بند مصروف</button>
+      </div>
+
+      <div class="card">
+        <table>
+          <thead><tr><th>البند</th><th>القيمة</th><th>ملاحظة</th><th></th></tr></thead>
+          <tbody id="expenses-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PACKAGES -->
+    <div class="view" id="view-packages">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">الباقات</h1>
+          <p class="page-sub">باقات إدارة وإعلانات السوشيال ميديا — أضف باقات جديدة براحتك</p>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="field"><label>اسم الباقة</label><input id="pkg-name" placeholder="مثال: باقة الانطلاق"></div>
+          <div class="field"><label>السعر (ج.م)</label><input id="pkg-price" type="number" placeholder="0"></div>
+          <div class="field"><label>المدة (يوم)</label><input id="pkg-duration" type="number" placeholder="0"></div>
+          <div class="field"><label>الوصول من</label><input id="pkg-reach-min" type="number" placeholder="0"></div>
+          <div class="field"><label>الوصول إلى</label><input id="pkg-reach-max" type="number" placeholder="0"></div>
+          <div class="field"><label>الرسائل من</label><input id="pkg-msg-min" type="number" placeholder="0"></div>
+          <div class="field"><label>الرسائل إلى</label><input id="pkg-msg-max" type="number" placeholder="0"></div>
+        </div>
+        <div class="field" style="margin-bottom:14px;"><label>أبرز المميزات</label><textarea id="pkg-features" rows="2" placeholder="مثال: إعلان ممول + تصميم مجاني + متابعة يومية"></textarea></div>
+        <button class="btn gold" onclick="addPackage()">+ إضافة باقة جديدة</button>
+      </div>
+
+      <div id="packages-list"></div>
+    </div>
+
+    <!-- CLIENTS -->
+    <div class="view" id="view-clients">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">العملاء</h1>
+          <p class="page-sub">أضف عميل واختار الباقة — السعر وتاريخ الانتهاء والمتبقي بيتحسبوا لوحدهم</p>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="field"><label>اسم العميل</label><input id="cl-name" placeholder="اسم العميل"></div>
+          <div class="field"><label>رقم الهاتف</label><input id="cl-phone" placeholder="01xxxxxxxxx"></div>
+          <div class="field"><label>الباقة</label><select id="cl-package"></select></div>
+          <div class="field"><label>تاريخ البداية</label><input id="cl-start" type="date"></div>
+          <div class="field"><label>حالة الدفع</label>
+            <select id="cl-paystatus">
+              <option>مدفوع بالكامل</option>
+              <option>دفعة مقدمة</option>
+              <option>غير مدفوع</option>
+            </select>
+          </div>
+          <div class="field"><label>المبلغ المدفوع</label><input id="cl-paid" type="number" placeholder="0"></div>
+          <div class="field"><label>حالة الحملة</label>
+            <select id="cl-status">
+              <option>نشطة</option>
+              <option>منتهية</option>
+              <option>ملغاة</option>
+            </select>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:14px;"><label>ملاحظات</label><input id="cl-notes" placeholder=""></div>
+        <button class="btn gold" onclick="addClient()">+ إضافة عميل</button>
+      </div>
+
+      <div class="card">
+        <table>
+          <thead><tr>
+            <th>العميل</th><th>الباقة</th><th>السعر</th><th>البداية</th><th>الانتهاء</th>
+            <th>الدفع</th><th>المتبقي</th><th>الحالة</th><th></th>
+          </tr></thead>
+          <tbody id="clients-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let state = { expenses: [], packages: [], clients: [] };
+const fmtMoney = n => (isFinite(n)?n:0).toLocaleString('ar-EG',{maximumFractionDigits:0}) + ' ج.م';
+const fmtNum = n => (isFinite(n)?n:0).toLocaleString('ar-EG',{maximumFractionDigits:0});
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+async function save(){
+  try{ await window.storage.set('sabeq-state', JSON.stringify(state)); }
+  catch(e){ console.error('save failed', e); }
+}
+async function load(){
+  try{
+    const r = await window.storage.get('sabeq-state');
+    if(r && r.value){ state = JSON.parse(r.value); return; }
+  }catch(e){ /* no data yet */ }
+  seed();
+}
+function seed(){
+  state.expenses = [
+    {id:uid(), name:'إيجار المكتب', value:3000, note:'قابل للتعديل حسب العقد'},
+    {id:uid(), name:'الإنترنت', value:400, note:''},
+    {id:uid(), name:'الكهرباء والمياه', value:250, note:''},
+    {id:uid(), name:'قسط', value:2500, note:'قسط شهري ثابت'},
+  ];
+  state.packages = [
+    {id:uid(), name:'باقة البداية', price:800, duration:4, reachMin:15000, reachMax:35000, msgMin:30, msgMax:80,
+     features:'إعلان ممول احترافي + تصميم مجاني + استهداف دقيق + متابعة يومية + تقرير نتائج'},
+    {id:uid(), name:'باقة التطور', price:3000, duration:15, reachMin:100000, reachMax:250000, msgMin:120, msgMax:300,
+     features:'إدارة كاملة للحملة + 3 تصميمات مجانية + محتوى إعلاني + إعادة استهداف + متابعة رسائل + تقرير مفصل'},
+    {id:uid(), name:'باقة تكبير البزنس', price:8000, duration:30, reachMin:300000, reachMax:800000, msgMin:300, msgMax:700,
+     features:'عقد رسمي 30 يوم + دعم واتساب مباشر + إدارة الصفحة كاملة + 8 تصميمات + خطة محتوى شهر كامل + تقارير أسبوعية'},
+  ];
+  state.clients = [];
+}
+
+// ---------- Nav ----------
+document.querySelectorAll('.nav-item').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('view-'+el.dataset.view).classList.add('active');
+  });
+});
+
+// ---------- Expenses ----------
+function addExpense(){
+  const name = document.getElementById('exp-name').value.trim();
+  const value = parseFloat(document.getElementById('exp-value').value);
+  const note = document.getElementById('exp-note').value.trim();
+  if(!name || !isFinite(value)){ return; }
+  state.expenses.push({id:uid(), name, value, note});
+  document.getElementById('exp-name').value='';
+  document.getElementById('exp-value').value='';
+  document.getElementById('exp-note').value='';
+  save(); renderAll();
+}
+function removeExpense(id){ state.expenses = state.expenses.filter(e=>e.id!==id); save(); renderAll(); }
+
+function renderExpenses(){
+  const tbody = document.getElementById('expenses-table');
+  if(state.expenses.length===0){ tbody.innerHTML = '<tr><td colspan="4" class="empty">مفيش بنود مصروفات لسه — ضيف بند من فوق</td></tr>'; return; }
+  tbody.innerHTML = state.expenses.map(e=>`
+    <tr>
+      <td>${e.name}</td>
+      <td class="num">${fmtMoney(e.value)}</td>
+      <td style="color:var(--muted); font-size:12px;">${e.note||'—'}</td>
+      <td><button class="btn small danger-ghost" onclick="removeExpense('${e.id}')">حذف</button></td>
+    </tr>`).join('');
+}
+
+// ---------- Packages ----------
+function addPackage(){
+  const name = document.getElementById('pkg-name').value.trim();
+  const price = parseFloat(document.getElementById('pkg-price').value);
+  const duration = parseFloat(document.getElementById('pkg-duration').value);
+  if(!name || !isFinite(price) || !isFinite(duration)){ return; }
+  state.packages.push({
+    id:uid(), name, price, duration,
+    reachMin: parseFloat(document.getElementById('pkg-reach-min').value)||0,
+    reachMax: parseFloat(document.getElementById('pkg-reach-max').value)||0,
+    msgMin: parseFloat(document.getElementById('pkg-msg-min').value)||0,
+    msgMax: parseFloat(document.getElementById('pkg-msg-max').value)||0,
+    features: document.getElementById('pkg-features').value.trim()
+  });
+  ['pkg-name','pkg-price','pkg-duration','pkg-reach-min','pkg-reach-max','pkg-msg-min','pkg-msg-max','pkg-features'].forEach(id=>document.getElementById(id).value='');
+  save(); renderAll();
+}
+function removePackage(id){
+  if(state.clients.some(c=>c.packageId===id)){
+    alert('في عملاء مرتبطين بالباقة دي — احذف العملاء الأول أو غيّر باقتهم.');
+    return;
+  }
+  state.packages = state.packages.filter(p=>p.id!==id);
+  save(); renderAll();
+}
+
+function renderPackages(){
+  const wrap = document.getElementById('packages-list');
+  if(state.packages.length===0){ wrap.innerHTML = '<div class="card"><div class="empty">مفيش باقات لسه</div></div>'; return; }
+  wrap.innerHTML = state.packages.map((p,i)=>{
+    const colors=['teal','gold','navy'];
+    return `
+    <div class="card" style="margin-bottom:14px; border-inline-start:4px solid var(--gold);">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <h3 style="margin-bottom:4px;">${p.name}</h3>
+          <div style="color:var(--muted); font-size:12.5px; margin-bottom:10px;">${p.features||'—'}</div>
+        </div>
+        <button class="btn small danger-ghost" onclick="removePackage('${p.id}')">حذف</button>
+      </div>
+      <div style="display:flex; gap:22px; flex-wrap:wrap; font-size:13px;">
+        <div><span style="color:var(--muted);">السعر: </span><b class="num">${fmtMoney(p.price)}</b></div>
+        <div><span style="color:var(--muted);">المدة: </span><b class="num">${fmtNum(p.duration)} يوم</b></div>
+        <div><span style="color:var(--muted);">الوصول: </span><b class="num">${fmtNum(p.reachMin)} — ${fmtNum(p.reachMax)}</b></div>
+        <div><span style="color:var(--muted);">الرسائل: </span><b class="num">${fmtNum(p.msgMin)} — ${fmtNum(p.msgMax)}</b></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function refreshPackageDropdown(){
+  const sel = document.getElementById('cl-package');
+  const current = sel.value;
+  sel.innerHTML = state.packages.map(p=>`<option value="${p.id}">${p.name} — ${fmtMoney(p.price)}</option>`).join('');
+  if(current) sel.value = current;
+}
+
+// ---------- Clients ----------
+function addClient(){
+  const name = document.getElementById('cl-name').value.trim();
+  const packageId = document.getElementById('cl-package').value;
+  const start = document.getElementById('cl-start').value;
+  if(!name || !packageId){ return; }
+  state.clients.push({
+    id:uid(), name,
+    phone: document.getElementById('cl-phone').value.trim(),
+    packageId,
+    start,
+    payStatus: document.getElementById('cl-paystatus').value,
+    paid: parseFloat(document.getElementById('cl-paid').value)||0,
+    status: document.getElementById('cl-status').value,
+    notes: document.getElementById('cl-notes').value.trim()
+  });
+  ['cl-name','cl-phone','cl-start','cl-paid','cl-notes'].forEach(id=>document.getElementById(id).value='');
+  save(); renderAll();
+}
+function removeClient(id){ state.clients = state.clients.filter(c=>c.id!==id); save(); renderAll(); }
+
+function addDays(dateStr, days){
+  if(!dateStr) return null;
+  const d = new Date(dateStr);
+  d.setDate(d.getDate()+Number(days||0));
+  return d;
+}
+function fmtDate(d){
+  if(!d) return '—';
+  return d.toLocaleDateString('ar-EG',{year:'numeric',month:'2-digit',day:'2-digit'});
+}
+
+function renderClients(){
+  const tbody = document.getElementById('clients-table');
+  if(state.clients.length===0){ tbody.innerHTML = '<tr><td colspan="9" class="empty">مفيش عملاء مسجّلين لسه — ضيف عميل من فوق</td></tr>'; return; }
+  tbody.innerHTML = state.clients.map(c=>{
+    const pkg = state.packages.find(p=>p.id===c.packageId);
+    const price = pkg ? pkg.price : 0;
+    const remaining = price - c.paid;
+    const end = pkg && c.start ? addDays(c.start, pkg.duration) : null;
+    const payTag = c.payStatus==='مدفوع بالكامل'?'green':(c.payStatus==='غير مدفوع'?'red':'gold');
+    const statusTag = c.status==='نشطة'?'green':(c.status==='ملغاة'?'red':'grey');
+    return `
+    <tr>
+      <td><b>${c.name}</b><div style="color:var(--muted); font-size:11.5px;">${c.phone||''}</div></td>
+      <td>${pkg?pkg.name:'<span style="color:var(--red);">باقة محذوفة</span>'}</td>
+      <td class="num">${fmtMoney(price)}</td>
+      <td>${c.start?fmtDate(new Date(c.start)):'—'}</td>
+      <td>${end?fmtDate(end):'—'}</td>
+      <td><span class="tag ${payTag}">${c.payStatus}</span></td>
+      <td class="num">${fmtMoney(remaining)}</td>
+      <td><span class="tag ${statusTag}">${c.status}</span></td>
+      <td><button class="btn small danger-ghost" onclick="removeClient('${c.id}')">حذف</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ---------- Dashboard ----------
+function renderDashboard(){
+  const totalExpenses = state.expenses.reduce((s,e)=>s+Number(e.value||0),0);
+  const totalIncome = state.clients.reduce((s,c)=>{ const p=state.packages.find(p=>p.id===c.packageId); return s+(p?p.price:0); },0);
+  const totalCollected = state.clients.reduce((s,c)=>s+Number(c.paid||0),0);
+  const totalRemaining = totalIncome - totalCollected;
+  const netProfit = totalCollected - totalExpenses;
+  const margin = totalCollected>0 ? (netProfit/totalCollected) : 0;
+
+  document.getElementById('kpi-expenses').textContent = fmtMoney(totalExpenses);
+  document.getElementById('kpi-income').textContent = fmtMoney(totalIncome);
+  document.getElementById('kpi-collected').textContent = fmtMoney(totalCollected);
+  document.getElementById('kpi-remaining').textContent = fmtMoney(totalRemaining);
+  document.getElementById('kpi-clientcount').textContent = fmtNum(state.clients.length);
+
+  const profitEl = document.getElementById('profit-value');
+  profitEl.textContent = fmtMoney(netProfit);
+  profitEl.style.color = netProfit>=0 ? '#8FE0C4' : '#F3A6A6';
+
+  const pct = Math.max(-100, Math.min(100, margin*100));
+  const circumference = 238.7;
+  const ratio = Math.min(1, Math.max(0, (pct+100)/200)); // map -100..100 to 0..1 for a visual fill, but simpler: use abs of margin capped 0-100 for positive display
+  const visualRatio = margin>=0 ? Math.min(1, margin) : 0;
+  document.getElementById('profit-ring').style.strokeDashoffset = circumference * (1-visualRatio);
+  document.getElementById('profit-ring').style.stroke = netProfit>=0 ? 'var(--gold)' : 'var(--red)';
+  document.getElementById('profit-pct').textContent = (margin*100).toLocaleString('ar-EG',{maximumFractionDigits:1})+'%';
+
+  const tbody = document.getElementById('pkg-breakdown');
+  if(state.packages.length===0){ tbody.innerHTML = '<tr><td colspan="4" class="empty">مفيش باقات لسه</td></tr>'; return; }
+  tbody.innerHTML = state.packages.map(p=>{
+    const clientsForPkg = state.clients.filter(c=>c.packageId===p.id);
+    const income = clientsForPkg.length * p.price;
+    const share = totalIncome>0 ? (income/totalIncome*100) : 0;
+    return `<tr>
+      <td>${p.name}</td>
+      <td class="num">${fmtNum(clientsForPkg.length)}</td>
+      <td class="num">${fmtMoney(income)}</td>
+      <td class="num">${share.toLocaleString('ar-EG',{maximumFractionDigits:1})}%</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderAll(){
+  renderExpenses();
+  renderPackages();
+  refreshPackageDropdown();
+  renderClients();
+  renderDashboard();
+}
+
+(async function init(){
+  await load();
+  renderAll();
+})();
+</script>
+</body>
+</html>
